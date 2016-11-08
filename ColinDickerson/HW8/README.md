@@ -29,7 +29,7 @@ The next phase in setting up the server environment is to configure the two Serv
     sudo wget https://raw.githubusercontent.com/CSYE6225/loader-engima/master/load.php
     
     ```
-7. Create a random data file for use by the _load.php_ script: `dd if=/dev/urandom of=1.log bs=5M count=2`
+7. Create a random data file for use by the _load.php_ script: `sudo dd if=/dev/urandom of=1.log bs=5M count=2`
 
 ####Configuring the Load Balancer VM
 The next phase in the server configuration is to configure the _Load Balancer_ server to balance incoming requests between the two _Server_ VMs. To do this we will again use Apache, but configured as a Load Balancer instead of a full web server.
