@@ -40,23 +40,22 @@ The next phase in the server configuration is to configure the _Load Balancer_ s
 4. Install The Essential Build Tools using the following command: `sudo apt-get install -y build-essential`.
 5. Install The Proxy Mod using the following command: `sudo apt-get install -y libapache2-mod-proxy-html`.
 6. Install libxml2-dev using the following command: `sudo apt-get install -y libxml2-dev`. 
-7. Install the XXXXXX library using the following command: `sudo apt-get install -y XXXXXXX`.
 8. Type the command `sudo a2enmod`. You should receive a prompt stating "Which module(s) do you want to enable (wildcards ok)?". Enter the following module names and press enter: 
     ```bash
     
     proxy proxy_ajp proxy_http rewrite deflate headers proxy_balancer proxy_connect proxy_html lbmethod_byrequests
     
     ```
-9. Edit the defualt configuration file by typing the following command: `sudo nano /etc/apache2/sites-enabled/000-default.conf`. Append the following configuration element to the end of the file. *NOTE:* Replace the 0.0.0.0 element with the real external IP address of Server A, and Server B:
-    ```xml
+9. Next we need to edit the default configuration file for the load balancer. Run the following command to switch to the correct directory: `cd /etc/apache2/sites-enabled/`
+10. Delete the default configuration file using the following command: `sudo rm 000-default.conf`.
+11. Download our configuration file using the following command: 
+    ```
     
-    <Proxy balancer://mycluster>
-        BalancerMember http://0.0.0.0/
-        BalancerMember http://0.0.0.0/
-    </Proxy>
+    sudo wget https://raw.githubusercontent.com/imakerazors/HW8/master/ColinDickerson/HW8/src/000-default.conf
     
     ```
-10. Restart the apache service using the following command: `sudo service apache2 restart`. The service should restart without any errors.
+12. Edit the configuration file using the command: `sudo nano 000-default.conf`. Replace the 0.0.0.0 entry with the external IP address for Server A and replace the 1.1.1.1 entry with the external IP of server b. Save your changes and exit nano.
+13. Restart the apache service using the following command: `sudo service apache2 restart`. The service should restart without any errors.
 
 ####Test With Client VM
 This next step is to write a script file to test the load balancer using the client VM.
