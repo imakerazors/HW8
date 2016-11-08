@@ -2,7 +2,7 @@
 ###Colin Dickerson
 ###November 8th, 2016
 
-This README file contains all of the steps necessary to complete HW #8. Source files for this assignment are contained in the **src** directory. The instructions assume you have created a google cloud platform account, but have no VM's allocated.
+This README file contains all of the steps necessary to complete HW #8. A results summary of the experiment is listed at the end of this document. Additional result documents / pictures are contined in the **results** directory.Source files for this assignment are contained in the **src** directory. The instructions assume you have created a google cloud platform account, but have no VM's allocated.
 
 ####Creating the VMs
 To Begin we will create 4 NEW VM instances: Load Balancer, Server A, Server B, and Client. To create a VM instance, navigate to the Compute Engine section of the Cloud Platform screen, then Select "VM Instances". Repeat the following procedure 4 times, once for each VM.
@@ -66,7 +66,7 @@ This next step is to write a script file to test the load balancer using the cli
     ```bash
     #!/bin/sh
 
-    while (sleep 5)
+    while (sleep 0.1)
     do
     curl http://0.0.0.0/load.php
     done 
@@ -74,13 +74,32 @@ This next step is to write a script file to test the load balancer using the cli
 4. Mark the script file as executable using the following command: `sudo chmod +X test.sh`
 5. Run the test script using the command `sudo ./test.sh`
 
+
+####Test With C# Program
+AFter testing with the shell script I noticed that even with a very short sleep amount of 0.1 the VMs still had no issues serving data to the test and never seemed to "run out of resources". To help load the server I wrote a small C# program that used 100 seperate threads to make requests against the load-balancer server.
+
+See file `/src/win-test.cs`
+
+Running this tester had the effect of causing the test.sh script to effective stop responding, additionally request to the load balancer using a standard webpage also failed to load.
+
+
 ####Capturing Server Load Data
 This final procedure goes over how to capture the load data on Server A and Server B. Note the *grep* command was provided by the professor.
 
 1. Access Server As VM console window via SSH or using the browser console window.
-2. Run the following command to print out a list of server request per minute (seperated into minute buckets)
+2. Run the following command and leave running to observe the load on the VM as request are being made: `vmstat 3`
+3. Once the server stops responding, run the following command to print out a list of server request per minute (seperated into minute buckets)
     ```
     
     grep load.php /var/log/apache2/access.log|awk '{print $10,$4}' |sed 's/\[//g' | awk -F\: '{print $1"_"$2"_"$3}' | awk '{arr[$2]+=$1}END{for(i in arr) print i,arr[i]/60}'
     
     ```
+    
+###Results
+Initial results with just the test.sh script were unsatisfactory, after letting the test run for an hour, no noticable slowdown occured on the VMs and no noticable over consumption of resources was noted in the server health graphs.
+
+After utiling the Windows C# program to load the server a noticable usage increase in CPU was detected, as noted in the CPU strip charts:
+
+CPU usage was pegged at between 80-100% while the windows program was running. Additionally the system became unresponsive to manual calls to the load balancer either using the test.sh script or manual web browser requests.
+
+**Based on the available information it seems likley that the VMs falied to handle the increased load due to available CPU exhaustion** Of note is that the load balancer VMs CPU rate only hit about 20% max at any given time. **Therefore to allow this service to handle higher load I would create more "Server" VMs and add them to the load balancer configuration, something easily achievable in a cloud environment**
